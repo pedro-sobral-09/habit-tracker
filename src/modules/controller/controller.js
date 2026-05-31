@@ -1,8 +1,16 @@
-import { hasEmptyField } from "./utils.js";
-import { Category } from "./category.js";
+import { hasEmptyField } from "../utils/utils.js";
+import { saveCategories, loadCategories, removeStorage } from "../storage/storage.js";
+import { Category } from "../habits/category.js";
 
 const controller = {
-    categories: [],
+    categories: (() => {
+        const localCategories = loadCategories();
+        if (localCategories == null){
+            return [];
+        } else {
+            return localCategories;
+        }
+    })(),
 
     findCategory(idCategory) {
         return this.categories.find((category) => category.id === idCategory);
@@ -16,6 +24,8 @@ const controller = {
         }
 
         this.categories.push(new Category(name));
+        
+        saveCategories(this.categories);
     },
 
     removeCategory(idCategory = ``) {
@@ -31,6 +41,8 @@ const controller = {
         }
 
         this.categories = this.categories.filter((elem) => elem.id !== idCategory);
+        
+        saveCategories(this.categories);
     },
 
     renameCategory(idCategory = ``, newName = ``) {
@@ -46,6 +58,8 @@ const controller = {
             console.log("Category not found.");
         } else {
             category.name = newName;
+            
+            saveCategories(this.categories);
         }
     },
 
@@ -62,6 +76,8 @@ const controller = {
             console.log("Category not found.");
         } else {
             category.createHabit(name, description);
+            
+            saveCategories(this.categories);
         }
     },
 
@@ -78,6 +94,8 @@ const controller = {
             console.log("Category not found.");
         } else {
             category.removeHabit(idHabit);
+            
+            saveCategories(this.categories);
         }
     },
 
@@ -101,6 +119,8 @@ const controller = {
                 console.log(`Habit not found`);
             } else {
                 habit.renameText(prop, newText);
+                
+                saveCategories(this.categories);
             }
         }
     },
@@ -120,9 +140,13 @@ const controller = {
         if (category === undefined){
             console.log("Category not found.");
         } else {
-        category.listHabit();
+            category.listHabit();
         }
     },
+
+    removeStorage(){
+        removeStorage();
+    }
 }
 
 export default controller;
